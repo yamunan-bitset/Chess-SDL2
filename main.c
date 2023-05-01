@@ -131,16 +131,26 @@ int main()
                     case SDL_BUTTON_LEFT:
                         if (selected < 32)
                         {
-                            printf("%c%i\n", pos_to_coord(mouseX, mouseY).x, pos_to_coord(mouseX, mouseY).y);
+			    SDL_RenderClear(render);
+			    printf("%c%i\n", pos_to_coord(mouseX, mouseY).x, pos_to_coord(mouseX, mouseY).y);
+			    Board(render);
+			    SDL_Rect rect = coord_to_rect(p[selected].coord);
+			    SDL_SetRenderDrawColor(render, 0x86, 0xDC, 0x3D, 255);
+			    SDL_RenderFillRect(render, &rect);
                             p[selected].coord.x = pos_to_coord(mouseX, mouseY).x;
                             p[selected].coord.y = pos_to_coord(mouseX, mouseY).y;
                             for (int i = 0; i < 32; i++)
+			      {
                                 if ((white_turn && !p[i].white) || (!white_turn && p[i].white))
                                     if (p[i].coord.x == pos_to_coord(mouseX, mouseY).x
                                         && p[i].coord.y == pos_to_coord(mouseX, mouseY).y)
                                         p[i].tex = NULL;
+			      }
+			    rect = coord_to_rect(p[selected].coord);
+			    SDL_SetRenderDrawColor(render, 0xE5, 0xDE, 0x00, 255);
+			    SDL_RenderFillRect(render, &rect);
+			    RenderPieces(render);
                             selected = 32;
-			    render_pieces = true;
 			    white_turn = !white_turn;
                         }
                         else
@@ -155,8 +165,7 @@ int main()
                                         SDL_Rect rect = coord_to_rect(p[i].coord);
                                         SDL_SetRenderDrawColor(render, 0xE5, 0xDE, 0x00, 255);
                                         SDL_RenderFillRect(render, &rect);
-					SDL_Rect tmp = coord_to_rect(p[i].coord);
-					SDL_RenderCopy(render, p[i].tex, NULL, &tmp);
+					SDL_RenderCopy(render, p[i].tex, NULL, &rect);
 					SDL_RenderPresent(render);
                                     }
 				
