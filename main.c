@@ -155,29 +155,32 @@ int main()
                                         SDL_Rect rect = coord_to_rect(p[i].coord);
                                         SDL_SetRenderDrawColor(render, 0xE5, 0xDE, 0x00, 255);
                                         SDL_RenderFillRect(render, &rect);
-                                        SDL_RenderPresent(render);
+					SDL_Rect tmp = coord_to_rect(p[i].coord);
+					SDL_RenderCopy(render, p[i].tex, NULL, &tmp);
+					SDL_RenderPresent(render);
                                     }
 				
                             }
                         }
                         break;
                     case SDL_BUTTON_RIGHT:
+		        Coord mouse_pos = pos_to_coord(mouseX, mouseY);
                         SDL_SetRenderDrawColor(render, 0xC1, 0x19, 0x20, 255);
-                        SDL_Rect rect = coord_to_rect(pos_to_coord(mouseX, mouseY));
+                        SDL_Rect rect = coord_to_rect(mouse_pos);
                         SDL_RenderFillRect(render, &rect);
-                        SDL_RenderPresent(render);
+                        RenderPieces(render);
                         break;
                 }
                 break;
         }
-		if (render_pieces)
-		  {
-		    SDL_RenderClear(render);
-		    Board(render);
-		    RenderPieces(render);
-		    render_pieces = false;
-		  }
-	}       
+	if (render_pieces)
+	  {
+	    SDL_RenderClear(render);
+	    Board(render);
+	    RenderPieces(render);
+	    render_pieces = false;
+	  }
+    }       
     SDL_Quit();
     return 0;
 }
