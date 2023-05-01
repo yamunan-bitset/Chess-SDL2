@@ -1,9 +1,14 @@
-#define SDL_MAIN_HANDLED
+// #define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <stdbool.h>
 
 #include "coord.h"
+
+#define W 800
+#define H 800
+/*TODO: implement preprocessors*/
+/*TODO: implement stockfish*/
 
 struct piece
 {
@@ -32,7 +37,16 @@ void Board(SDL_Renderer *render)
         }
         iters++;
     }
-    SDL_RenderPresent(render);
+}
+
+void RenderPieces(SDL_Renderer *render)
+{
+	for (int i = 0; i < 32; i++)
+        {
+            SDL_Rect tmp = coord_to_rect(p[i].coord);
+            SDL_RenderCopy(render, p[i].tex, NULL, &tmp);
+        }
+	SDL_RenderPresent(render);
 }
 
 int main()
@@ -48,23 +62,24 @@ int main()
 
     SDL_Surface *surf = SDL_GetWindowSurface(window);
 
+    SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
     Board(render);
 
     SDL_Surface *surfs[32];
-    surfs[0] = surfs[7] = IMG_Load("D:/Chess/data/assets/b_rook.png");
-    surfs[1] = surfs[6] = IMG_Load("D:/Chess/data/assets/b_knight.png");
-    surfs[2] = surfs[5] = IMG_Load("D:/Chess/data/assets/b_bishop.png");
-    surfs[3] = IMG_Load("D:/Chess/data/assets/b_queen.png");
-    surfs[4] = IMG_Load("D:/Chess/data/assets/b_king.png");
+    surfs[0] = surfs[7] = IMG_Load("data/assets/b_rook.png");
+    surfs[1] = surfs[6] = IMG_Load("data/assets/b_knight.png");
+    surfs[2] = surfs[5] = IMG_Load("data/assets/b_bishop.png");
+    surfs[3] = IMG_Load("data/assets/b_queen.png");
+    surfs[4] = IMG_Load("data/assets/b_king.png");
     for (int i = 8; i < 16; i++)
-        surfs[i] = IMG_Load("D:/Chess/data/assets/b_pawn.png");
+        surfs[i] = IMG_Load("data/assets/b_pawn.png");
     for (int i = 16; i < 24; i++)
-        surfs[i] = IMG_Load("D:/Chess/data/assets/w_pawn.png");
-    surfs[24] = surfs[31] = IMG_Load("D:/Chess/data/assets/w_rook.png");
-    surfs[25] = surfs[30] = IMG_Load("D:/Chess/data/assets/w_knight.png");
-    surfs[26] = surfs[29] = IMG_Load("D:/Chess/data/assets/w_bishop.png");
-    surfs[27] = IMG_Load("D:/Chess/data/assets/w_queen.png");
-    surfs[28] = IMG_Load("D:/Chess/data/assets/w_king.png");
+        surfs[i] = IMG_Load("data/assets/w_pawn.png");
+    surfs[24] = surfs[31] = IMG_Load("data/assets/w_rook.png");
+    surfs[25] = surfs[30] = IMG_Load("data/assets/w_knight.png");
+    surfs[26] = surfs[29] = IMG_Load("data/assets/w_bishop.png");
+    surfs[27] = IMG_Load("data/assets/w_queen.png");
+    surfs[28] = IMG_Load("data/assets/w_king.png");
 
     SDL_Texture *textures[32];
     for (int i = 0; i < 32; i++)
@@ -95,14 +110,18 @@ int main()
         p[i].white = true;
     }
 
+    Board(render);
+    RenderPieces(render);
+    
     bool quit = false;
     SDL_Event event;
     int mouseX, mouseY, selected = 32;
     bool white_turn = true;
+	bool render_pieces = true;
     while (!quit)
     {
-        SDL_WaitEvent(&event);
-        switch (event.type) {
+      SDL_WaitEvent(&event);
+      	switch (event.type) {
             case SDL_QUIT:
                 quit = true;
                 break;
@@ -112,6 +131,7 @@ int main()
                     case SDL_BUTTON_LEFT:
                         if (selected < 32)
                         {
+                            printf("%c%i\n", pos_to_coord(mouseX, mouseY).x, pos_to_coord(mouseX, mouseY).y);
                             p[selected].coord.x = pos_to_coord(mouseX, mouseY).x;
                             p[selected].coord.y = pos_to_coord(mouseX, mouseY).y;
                             for (int i = 0; i < 32; i++)
@@ -120,9 +140,8 @@ int main()
                                         && p[i].coord.y == pos_to_coord(mouseX, mouseY).y)
                                         p[i].tex = NULL;
                             selected = 32;
-                            SDL_RenderClear(render);
-                            white_turn = !white_turn;
-                            Board(render);
+			    render_pieces = true;
+			    white_turn = !white_turn;
                         }
                         else
                         {
@@ -131,14 +150,14 @@ int main()
                                 if ((white_turn && p[i].white) || (!white_turn && !p[i].white))
                                     if (p[i].coord.x == pos_to_coord(mouseX, mouseY).x && p[i].coord.y == pos_to_coord(mouseX, mouseY).y)
                                     {
-                                        printf("%c%i\n", p[i].coord.x, p[i].coord.y);
-                                        printf("whites turn? %d\n", white_turn);
+                                        printf("%c%i-", p[i].coord.x, p[i].coord.y);
                                         selected = i;
                                         SDL_Rect rect = coord_to_rect(p[i].coord);
                                         SDL_SetRenderDrawColor(render, 0xE5, 0xDE, 0x00, 255);
                                         SDL_RenderFillRect(render, &rect);
                                         SDL_RenderPresent(render);
                                     }
+				
                             }
                         }
                         break;
@@ -151,14 +170,14 @@ int main()
                 }
                 break;
         }
-        
-        for (int i = 0; i < 32; i++)
-        {
-            SDL_Rect tmp = coord_to_rect(p[i].coord);
-            SDL_RenderCopy(render, p[i].tex, NULL, &tmp);
-        }
-        SDL_RenderPresent(render);
-    }       
+		if (render_pieces)
+		  {
+		    SDL_RenderClear(render);
+		    Board(render);
+		    RenderPieces(render);
+		    render_pieces = false;
+		  }
+	}       
     SDL_Quit();
     return 0;
 }
