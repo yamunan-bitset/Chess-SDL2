@@ -6,6 +6,13 @@ typedef struct coord
     int y;
 } Coord;
 
+char* coord_as_string(Coord n)
+{
+    char pos[2];
+    sprintf(pos, "%c%c", n.x, n.y + '0');
+    return pos;
+}
+
 SDL_Rect coord_to_rect(Coord n)
 {
     int ix;
