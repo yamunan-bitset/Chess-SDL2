@@ -36,7 +36,7 @@ char* GetNextMove(const char* position)
 {     
     char* str = (char*) malloc(strlen("bestmove aNxbM ponder cPxdQ"));
     char* str1 = "position startpos moves";
-    char* str3 = "\ngo depth 10\n";
+    char* str3 = "\ngo movetime 2000\n";
     char* strc = (char*) malloc(1 + strlen(str1) + strlen(position) + strlen(str3));
     strcpy(strc, str1);
     strcpy(strc, position);
@@ -55,7 +55,12 @@ char* GetNextMove(const char* position)
     } while(read >= sizeof(buffer));
 
     if (strstr(str, "bestmove") != NULL)
-        return (char*) { str[9], str[10], str[11], str[12], str[13] };
+    {
+        char* ret = "";
+        //sprintf(ret, "%c%c%c%c%c", str[9], str[10], str[11], str[12], str[13]);
+        printf("%c%c%c%c%c\n", str[9], str[10], str[11], str[12], str[13]);
+        return ret;
+    }
     return (char*) "error";
 }
 

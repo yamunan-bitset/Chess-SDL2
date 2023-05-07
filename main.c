@@ -125,6 +125,8 @@ int main()
     int mouseX, mouseY, selected = 32;
     bool white_turn = true;
     bool render_pieces = true;
+    bool capture = false;
+    Coord first_place;
     char* pos = (char*) malloc(5);
 
 #ifdef _WIN32
@@ -153,6 +155,7 @@ int main()
                     SDL_Rect rect = coord_to_rect(p[selected].coord);
                     SDL_SetRenderDrawColor(render, 0xC5, 0xE9, 0x0B, 120);
                     SDL_RenderFillRect(render, &rect);
+                    first_place = p[selected].coord;
                     p[selected].coord.x = pos_to_coord(mouseX, mouseY).x;
                     p[selected].coord.y = pos_to_coord(mouseX, mouseY).y;
                     for (int i = 0; i < 32; i++)
@@ -160,17 +163,19 @@ int main()
                             if (p[i].coord.x == pos_to_coord(mouseX, mouseY).x && p[i].coord.y == pos_to_coord(mouseX, mouseY).y)
                             {
                                 p[i].tex = NULL;
-                                printf("x");
-                                strcpy(pos, (char*) "x");
+                                capture = true;
                             }
                     rect = coord_to_rect(p[selected].coord);
                     SDL_SetRenderDrawColor(render, 0xE5, 0xDE, 0x00, 200);
                     SDL_RenderFillRect(render, &rect);
                     RenderPieces(render);
-                    printf("%c%i\n", pos_to_coord(mouseX, mouseY).x, pos_to_coord(mouseX, mouseY).y);
-                    sprintf(pos, "%c%c", p[selected].coord.x, p[selected].coord.y + '0');
-                    printf("%s\n", GetNextMove(pos));
+                    if (capture)
+                        sprintf(pos, "%c%c%c%c%c", first_place.x, first_place.y + '0', 'x', p[selected].coord.x, p[selected].coord.y + '0');
+                    else
+                        sprintf(pos, "%c%c%c%c", first_place.x, first_place.y + '0', p[selected].coord.x, p[selected].coord.y + '0');
 		            printf("%s\n", pos);
+                    printf("%s\n", GetNextMove(pos));
+                    capture = false;
                     selected = 32;
                     white_turn = !white_turn;
                 }
@@ -181,7 +186,6 @@ int main()
                         if ((white_turn && p[i].white) || (!white_turn && !p[i].white))
                             if (p[i].coord.x == pos_to_coord(mouseX, mouseY).x && p[i].coord.y == pos_to_coord(mouseX, mouseY).y)
                             {
-                                printf("%c%i", p[i].coord.x, p[i].coord.y);
                                 sprintf(pos, "%c%c", p[i].coord.x, p[i].coord.y + '0');
                                 selected = i;
                                 SDL_Rect rect = coord_to_rect(p[i].coord);
