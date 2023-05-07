@@ -168,7 +168,7 @@ int main()
                     SDL_RenderFillRect(render, &rect);
                     RenderPieces(render);
                     printf("%c%i\n", pos_to_coord(mouseX, mouseY).x, pos_to_coord(mouseX, mouseY).y);
-                    strcpy(pos, coord_as_string(p[selected].coord));
+                    sprintf(pos, "%c%c", p[selected].coord.x, p[selected].coord.y + '0');
                     printf("%s\n", GetNextMove(pos));
 		            printf("%s\n", pos);
                     selected = 32;
@@ -182,7 +182,7 @@ int main()
                             if (p[i].coord.x == pos_to_coord(mouseX, mouseY).x && p[i].coord.y == pos_to_coord(mouseX, mouseY).y)
                             {
                                 printf("%c%i", p[i].coord.x, p[i].coord.y);
-                                strcpy(pos, coord_as_string(p[i].coord));
+                                sprintf(pos, "%c%c", p[i].coord.x, p[i].coord.y + '0');
                                 selected = i;
                                 SDL_Rect rect = coord_to_rect(p[i].coord);
                                 SDL_SetRenderDrawColor(render, 0xE5, 0xDE, 0x00, 120);
