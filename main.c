@@ -3,6 +3,12 @@
 #include <SDL2/SDL_image.h>
 #include <stdbool.h>
 
+#ifdef _WIN32
+#include "stockfish-win.h"
+#elif __linux__
+#include "stockfish-lin.h"
+#endif
+
 #include "coord.h"
 
 #define W 800
@@ -119,6 +125,14 @@ int main()
     int mouseX, mouseY, selected = 32;
     bool white_turn = true;
     bool render_pieces = true;
+    char* pos = (char*) malloc(5);
+
+#ifdef _WIN32
+    ConnectToEngine(".\\stockfish\\stockfish-windows.exe");
+#elif __linux
+    ConnectToEngine("./stockfish/src/stockfish");
+#endif
+
     while (!quit)
     {
         SDL_WaitEvent(&event);
@@ -147,12 +161,16 @@ int main()
                             {
                                 p[i].tex = NULL;
                                 printf("x");
+                                strcpy(pos, (char*) "x");
                             }
                     rect = coord_to_rect(p[selected].coord);
                     SDL_SetRenderDrawColor(render, 0xE5, 0xDE, 0x00, 200);
                     SDL_RenderFillRect(render, &rect);
                     RenderPieces(render);
                     printf("%c%i\n", pos_to_coord(mouseX, mouseY).x, pos_to_coord(mouseX, mouseY).y);
+                    strcpy(pos, p[selected].coord.x);
+                    strcpy(pos, p[selected].coord.y);
+                    printf("%s\n", GetNextMove(pos));
                     selected = 32;
                     white_turn = !white_turn;
                 }
@@ -164,6 +182,8 @@ int main()
                             if (p[i].coord.x == pos_to_coord(mouseX, mouseY).x && p[i].coord.y == pos_to_coord(mouseX, mouseY).y)
                             {
                                 printf("%c%i", p[i].coord.x, p[i].coord.y);
+                                strcpy(pos, p[i].coord.x);
+                                strcpy(pos, p[i].coord.y);
                                 selected = i;
                                 SDL_Rect rect = coord_to_rect(p[i].coord);
                                 SDL_SetRenderDrawColor(render, 0xE5, 0xDE, 0x00, 120);
@@ -191,6 +211,9 @@ int main()
             render_pieces = false;
         }
     }
+    
+    CloseConnection();
+    IMG_Quit();
     SDL_Quit();
     return 0;
 }
